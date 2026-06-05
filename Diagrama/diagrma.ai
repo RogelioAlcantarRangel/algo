@@ -1,0 +1,137 @@
+erDiagram
+    PROVEEDOR ||--o{ COTIZACION : "presenta"
+    PROVEEDOR ||--o{ ORDEN_COMPRA : "recibe"
+    PROVEEDOR ||--o{ HISTORIAL_PRECIO : "tiene"
+    MATERIAL ||--o{ HISTORIAL_PRECIO : "registra"
+    MATERIAL ||--o{ COTIZACION_ITEM : "es cotizado en"
+    COTIZACION ||--|{ COTIZACION_ITEM : "contiene"
+    COTIZACION_ITEM }o--|| MATERIAL : "referencia"
+    SOLICITUD ||--o{ COTIZACION : "genera"
+    SOLICITUD ||--o{ ORDEN_COMPRA : "origina"
+    SOLICITUD ||--o{ JUSTIFICACION : "sustenta"
+    SOLICITUD }o--|| USUARIO : "creada por"
+    COTIZACION }o--|| USUARIO : "gestionada por"
+    ORDEN_COMPRA ||--o{ EVIDENCIA_DOCUMENTAL : "adjunta"
+    COTIZACION ||--o{ EVIDENCIA_DOCUMENTAL : "adjunta"
+    SOLICITUD ||--o{ EVIDENCIA_DOCUMENTAL : "adjunta"
+    JUSTIFICACION }o--|| USUARIO : "elaborada por"
+    JUSTIFICACION ||--o{ EVIDENCIA_DOCUMENTAL : "respalda"
+    AUDITORIA }o--|| USUARIO : "ejecuta"
+    AUDITORIA }o--|| SOLICITUD : "audita"
+    AUDITORIA }o--|| COTIZACION : "audita"
+    AUDITORIA }o--|| ORDEN_COMPRA : "audita"
+    AUDITORIA }o--|| JUSTIFICACION : "audita"
+
+    PROVEEDOR {
+        uuid id PK
+        string razon_social
+        string rfc UK
+        string direccion
+        string estado
+        timestamp fecha_registro
+    }
+
+    MATERIAL {
+        uuid id PK
+        string codigo UK
+        string descripcion
+        string unidad_medida
+        string categoria
+    }
+
+    SOLICITUD {
+        uuid id PK
+        string numero_solicitud UK
+        string concepto
+        string justificacion_breve
+        string estado
+        decimal monto_estimado
+        timestamp fecha_creacion
+        uuid creado_por FK
+    }
+
+    COTIZACION {
+        uuid id PK
+        string numero_cotizacion UK
+        uuid solicitud_id FK
+        uuid proveedor_id FK
+        timestamp fecha_recepcion
+        string moneda
+        decimal subtotal
+        decimal iva
+        decimal total
+        string condiciones_pago
+        integer plazo_entrega_dias
+        boolean seleccionada
+    }
+
+    COTIZACION_ITEM {
+        uuid id PK
+        uuid cotizacion_id FK
+        uuid material_id FK
+        decimal cantidad
+        decimal precio_unitario
+        decimal descuento
+    }
+
+    ORDEN_COMPRA {
+        uuid id PK
+        string numero_oc UK
+        uuid solicitud_id FK
+        uuid proveedor_id FK
+        timestamp fecha_emision
+        string estado
+        decimal total
+        string terminos
+    }
+
+    HISTORIAL_PRECIO {
+        uuid id PK
+        uuid proveedor_id FK
+        uuid material_id FK
+        decimal precio_unitario
+        timestamp fecha_registro
+        uuid origen_cotizacion FK "nullable"
+    }
+
+    EVIDENCIA_DOCUMENTAL {
+        uuid id PK
+        string nombre_archivo
+        string tipo_contenido
+        string ruta_almacenamiento
+        uuid cotizacion_id FK "nullable"
+        uuid orden_compra_id FK "nullable"
+        uuid solicitud_id FK "nullable"
+        uuid justificacion_id FK "nullable"
+        timestamp fecha_subida
+    }
+
+    JUSTIFICACION {
+        uuid id PK
+        uuid solicitud_id FK
+        string texto_narrativo
+        string criterio_tecnico
+        string criterio_economico
+        string conclusion
+        timestamp fecha_generacion
+        uuid generado_por FK
+    }
+
+    USUARIO {
+        uuid id PK
+        string nombre
+        string email UK
+        string rol
+        timestamp fecha_creacion
+    }
+
+    AUDITORIA {
+        uuid id PK
+        string entidad_afectada
+        uuid entidad_id
+        string evento
+        jsonb detalle
+        uuid usuario_id FK
+        timestamp fecha
+    }
+    
